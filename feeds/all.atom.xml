@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>PKRacha</title><link href="https://pkracha.github.io/" rel="alternate"></link><link href="https://pkracha.github.io/feeds/all.atom.xml" rel="self"></link><id>https://pkracha.github.io/</id><updated>2022-09-19T00:00:00-04:00</updated><entry><title>Welcome</title><link href="https://pkracha.github.io/welcome.html" rel="alternate"></link><published>2022-09-19T00:00:00-04:00</published><updated>2022-09-19T00:00:00-04:00</updated><author><name>PKRacha</name></author><id>tag:pkracha.github.io,2022-09-19:/welcome.html</id><summary type="html"></summary><content type="html">&lt;p&gt;Hi All,&lt;/p&gt;
+&lt;p&gt;Welcome to my PKRacha website.&lt;/p&gt;
+&lt;p&gt;Thanks for visiting my blog. :) &lt;/p&gt;</content><category term="Misc"></category><category term="Welcome"></category><category term="Introduction"></category></entry></feed>
