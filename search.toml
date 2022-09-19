@@ -1,0 +1,8 @@
+[input]
+base_directory = "output"
+html_selector = "main"
+
+[[input.files]]
+path = "welcome.html"
+url = "/welcome.html"
+title = "Welcome"
