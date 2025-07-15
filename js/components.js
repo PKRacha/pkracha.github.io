@@ -2,48 +2,12 @@
 class ComponentLoader {
     constructor() {
         this.components = {
-            header: `
-                <!-- Header -->
-                <header class="header">
-                    <div class="container">
-                        <div class="header-content">
-                            <div class="logo">
-                                <div class="logo-icon"></div>
-                                <div class="logo-text">
-                                    <h1>Prashanth R</h1>
-                                    <span>Principal Data Analytics Engineer</span>
-                                </div>
-                            </div>
-                            <nav class="nav">
-                                <ul class="nav-list">
-                                    <li><a href="index.html" class="nav-link">Home</a></li>
-                                    <li><a href="blog.html" class="nav-link">Blog</a></li>
-                                    <li><a href="projects.html" class="nav-link">Projects</a></li>
-                                    <li><a href="resume.html" class="nav-link">Resume</a></li>
-                                </ul>
-                                <div class="mobile-menu-toggle">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </nav>
-                        </div>
-                    </div>
-                </header>
-            `,
+            header: this.getHeaderHTML(),
             footer: `
                 <!-- Footer -->
                 <footer class="footer" id="contact">
                     <div class="container">
                         <div class="footer-content">
-                            <div class="footer-section">
-                                <h4>Phone</h4>
-                                <p>+1 (555) 123-4567</p>
-                            </div>
-                            <div class="footer-section">
-                                <h4>Email</h4>
-                                <p>prashanth@example.com</p>
-                            </div>
                             <div class="footer-section">
                                 <h4>Follow Me</h4>
                                 <div class="social-links">
@@ -64,6 +28,58 @@ class ComponentLoader {
                 </footer>
             `
         };
+    }
+
+    getHeaderHTML() {
+        // Determine if we're in a subdirectory (tools folder)
+        const isInTools = window.location.pathname.includes('/tools/');
+        const basePath = isInTools ? '../' : '';
+        
+        return `
+            <!-- Header -->
+            <header class="header">
+                <div class="container">
+                    <div class="header-content">
+                        <div class="logo">
+                            <div class="logo-icon"></div>
+                            <div class="logo-text">
+                                <h1>Prashanth R</h1>
+                                <span>Principal Data Analytics Engineer</span>
+                            </div>
+                        </div>
+                        <nav class="nav">
+                            <ul class="nav-list">
+                                <li><a href="${basePath}index.html" class="nav-link">Home</a></li>
+                                <li><a href="${basePath}blog.html" class="nav-link">Blog</a></li>
+                                <li class="dropdown">
+                                    <a href="#" class="nav-link dropdown-toggle">Tools</a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-toggle">Finance</a>
+                                            <ul class="dropdown-submenu-menu">
+                                                <li><a href="${basePath}tools/fire-calculator.html">FIRE Calculator</a></li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-toggle">Fun</a>
+                                            <ul class="dropdown-submenu-menu">
+                                                <li><a href="${basePath}tools/timeline-generator.html">Timeline Generator</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a href="${basePath}resume.html" class="nav-link">Resume</a></li>
+                            </ul>
+                            <div class="mobile-menu-toggle">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+        `;
     }
 
     // Load a component by name
@@ -98,9 +114,29 @@ class ComponentLoader {
         const navList = document.querySelector('.nav-list');
         
         if (mobileMenuToggle && navList) {
-            mobileMenuToggle.addEventListener('click', function() {
+            // Mobile menu toggle
+            mobileMenuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 navList.classList.toggle('active');
                 mobileMenuToggle.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!navList.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                    navList.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+
+            // Close mobile menu when clicking on a link
+            const navLinks = navList.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navList.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                });
             });
         }
 
@@ -115,12 +151,28 @@ class ComponentLoader {
 
     // Set active navigation based on current page
     setActiveNavigation() {
-        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const currentPath = window.location.pathname;
+        const currentPage = currentPath.split('/').pop() || 'index.html';
         const navLinks = document.querySelectorAll('.nav-link');
         
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
-            if (href === currentPage || (currentPage === 'index.html' && href === 'index.html')) {
+            let isActive = false;
+            
+            // Handle home page
+            if (currentPage === 'index.html' || currentPath === '/' || currentPath.endsWith('/')) {
+                isActive = href === 'index.html' || href.endsWith('index.html');
+            }
+            // Handle other pages
+            else if (href === currentPage) {
+                isActive = true;
+            }
+            // Handle tools pages
+            else if (currentPath.includes('tools/') && href.includes('tools/')) {
+                isActive = true;
+            }
+            
+            if (isActive) {
                 link.classList.add('active');
             } else {
                 link.classList.remove('active');

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRE Calculator - Prashanth R</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <div class="tool-content">
+                <h1 class="tool-title">FIRE Calculator</h1>
+                <p class="tool-subtitle">Calculate your Financial Independence, Retire Early (FIRE) numbers</p>
+                
+                <div class="calculator-grid">
+                    <!-- Input Section -->
+                    <div class="calculator-input">
+                        <h2>Your Financial Information</h2>
+                        
+                        <div class="input-group">
+                            <label for="current-age">Current Age</label>
+                            <input type="number" id="current-age" min="18" max="80" value="30">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="current-savings">Current Savings ($)</label>
+                            <input type="number" id="current-savings" min="0" value="50000">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="annual-income">Annual Income ($)</label>
+                            <input type="number" id="annual-income" min="0" value="100000">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="annual-expenses">Annual Expenses ($)</label>
+                            <input type="number" id="annual-expenses" min="0" value="60000">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="savings-rate">Savings Rate (%)</label>
+                            <input type="number" id="savings-rate" min="0" max="100" value="40">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="investment-return">Expected Investment Return (%)</label>
+                            <input type="number" id="investment-return" min="1" max="15" step="0.1" value="7">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="withdrawal-rate">Safe Withdrawal Rate (%)</label>
+                            <input type="number" id="withdrawal-rate" min="1" max="10" step="0.1" value="4">
+                        </div>
+
+                        <button id="calculate-btn" class="calculate-button">
+                            <i class="fas fa-calculator"></i>
+                            Calculate FIRE Numbers
+                        </button>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="calculator-results">
+                        <h2>Your FIRE Results</h2>
+                        
+                        <div class="results-grid">
+                            <div class="result-card">
+                                <h3>FIRE Number</h3>
+                                <div class="result-value" id="fire-number">$0</div>
+                                <p>Amount needed to retire</p>
+                            </div>
+
+                            <div class="result-card">
+                                <h3>Years to FIRE</h3>
+                                <div class="result-value" id="years-to-fire">0</div>
+                                <p>Years until financial independence</p>
+                            </div>
+
+                            <div class="result-card">
+                                <h3>FIRE Age</h3>
+                                <div class="result-value" id="fire-age">0</div>
+                                <p>Age when you can retire</p>
+                            </div>
+
+                            <div class="result-card">
+                                <h3>Monthly Investment</h3>
+                                <div class="result-value" id="monthly-investment">$0</div>
+                                <p>Amount to invest monthly</p>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="fire-chart"></canvas>
+                        </div>
+
+                        <div class="ai-insights" id="ai-insights">
+                            <h3>AI Insights</h3>
+                            <div class="insights-content">
+                                <p>Click "Calculate FIRE Numbers" to get personalized AI insights about your financial independence journey.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../js/components.js"></script>
+    <script src="../script.js"></script>
+    <script src="fire-calculator.js"></script>
+</body>
+</html> 
