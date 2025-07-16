@@ -1437,6 +1437,11 @@ body {
     color: #155724;
 }
 
+.status-indicator.using-default {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
 .status-indicator.not-configured {
     background-color: #f8d7da;
     color: #721c24;

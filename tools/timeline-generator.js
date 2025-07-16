@@ -187,9 +187,20 @@ class TimelineGenerator {
     }
 
     getGoogleAIKey() {
-        // Try to get API key from localStorage first
+        // First try to get API key from localStorage (for user's own key)
         let apiKey = localStorage.getItem('google_ai_api_key');
+        
+        // If no user key, use the default API key
+        if (!apiKey) {
+            apiKey = this.getDefaultAPIKey();
+        }
+        
         return apiKey;
+    }
+
+    getDefaultAPIKey() {
+        // Your Google AI API key - replace with your actual key
+        return 'AIzaSyBYJ7X4uEBHXviRChjSPxF7IGKlhlbXiKg';
     }
 
     initializeSettings() {
@@ -197,14 +208,15 @@ class TimelineGenerator {
         const apiStatus = document.getElementById('api-status');
         
         if (apiKeyInput) {
-            const savedKey = this.getGoogleAIKey();
+            const savedKey = localStorage.getItem('google_ai_api_key');
             if (savedKey) {
+                // User has their own key
                 apiKeyInput.value = savedKey;
                 this.updateAPIStatus('configured');
             } else {
-                this.updateAPIStatus('not-configured');
-                // Show notification for first-time users
-                this.showAISetupNotification();
+                // Use default key
+                apiKeyInput.value = '';
+                this.updateAPIStatus('using-default');
             }
         }
         
@@ -215,6 +227,12 @@ class TimelineGenerator {
     showAISetupNotification() {
         // Check if user has seen the notification before
         if (localStorage.getItem('ai_notification_shown')) {
+            return;
+        }
+        
+        // Don't show notification if using default key
+        const userKey = localStorage.getItem('google_ai_api_key');
+        if (!userKey) {
             return;
         }
         
@@ -258,22 +276,31 @@ class TimelineGenerator {
         const apiKey = apiKeyInput.value.trim();
         
         if (apiKey) {
+            // User provided their own key
             localStorage.setItem('google_ai_api_key', apiKey);
             this.updateAPIStatus('configured');
             this.closeSettingsModal();
-            alert('Settings saved successfully!');
+            alert('Settings saved successfully! Your API key will be used.');
         } else {
-            alert('Please enter a valid API key.');
+            // User wants to use default key
+            localStorage.removeItem('google_ai_api_key');
+            this.updateAPIStatus('using-default');
+            this.closeSettingsModal();
+            alert('Settings saved! Using default API key.');
         }
     }
 
     async testAPI() {
         const apiKeyInput = document.getElementById('api-key-input');
-        const apiKey = apiKeyInput.value.trim();
+        let apiKey = apiKeyInput.value.trim();
         
         if (!apiKey) {
-            alert('Please enter an API key first.');
-            return;
+            // Use default key for testing
+            apiKey = this.getDefaultAPIKey();
+            if (!apiKey || apiKey === 'YOUR_GOOGLE_AI_API_KEY_HERE') {
+                alert('No API key available. Please enter your own Google AI API key or configure the default key.');
+                return;
+            }
         }
 
         // Validate API key format (Google AI keys are typically longer and don't have a specific prefix)
@@ -372,7 +399,16 @@ class TimelineGenerator {
     updateAPIStatus(status) {
         const apiStatus = document.getElementById('api-status');
         if (apiStatus) {
-            apiStatus.textContent = status === 'configured' ? 'Configured' : 'Not configured';
+            switch (status) {
+                case 'configured':
+                    apiStatus.textContent = 'Configured (User Key)';
+                    break;
+                case 'using-default':
+                    apiStatus.textContent = 'Using Default Key';
+                    break;
+                default:
+                    apiStatus.textContent = 'Not configured';
+            }
             apiStatus.className = `status-indicator ${status}`;
         }
         
@@ -385,11 +421,13 @@ class TimelineGenerator {
         const debugFormat = document.getElementById('debug-format');
         const debugResult = document.getElementById('debug-result');
         
+        const userKey = localStorage.getItem('google_ai_api_key');
         const apiKey = this.getGoogleAIKey();
         
         if (debugKey) {
             if (apiKey) {
-                debugKey.textContent = apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 4);
+                const keySource = userKey ? 'User Key' : 'Default Key';
+                debugKey.textContent = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)} (${keySource})`;
             } else {
                 debugKey.textContent = 'Not set';
             }
@@ -397,7 +435,8 @@ class TimelineGenerator {
         
         if (debugFormat) {
             if (apiKey && apiKey.length >= 20) {
-                debugFormat.textContent = 'Valid (Google AI format)';
+                const keySource = userKey ? 'User Key' : 'Default Key';
+                debugFormat.textContent = `Valid (${keySource})`;
                 debugFormat.style.color = '#28a745';
             } else if (apiKey) {
                 debugFormat.textContent = 'Invalid (too short)';
