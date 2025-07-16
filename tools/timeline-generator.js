@@ -35,6 +35,12 @@ class TimelineGenerator {
             testBtn.addEventListener('click', () => this.testAPI());
         }
 
+        // Debug functionality
+        const clearDebugBtn = document.getElementById('clear-debug');
+        if (clearDebugBtn) {
+            clearDebugBtn.addEventListener('click', () => this.clearDebugInfo());
+        }
+
         // Close modal when clicking outside
         if (modal) {
             modal.addEventListener('click', (e) => {
@@ -83,10 +89,10 @@ class TimelineGenerator {
     }
 
     async generateAITimeline(subject, type, period, detail) {
-        const apiKey = this.getOpenAIKey();
+        const apiKey = this.getGoogleAIKey();
         
         if (!apiKey) {
-            console.log('No OpenAI API key configured, using local timeline data');
+            console.log('No Google AI API key configured, using local timeline data');
             return this.generateLocalTimeline(subject, type, period, detail);
         }
         
@@ -109,13 +115,13 @@ class TimelineGenerator {
     }
 
     async callAITimelineAPI(subject, type, period, detail) {
-        // OpenAI API configuration
-        const apiUrl = 'https://api.openai.com/v1/chat/completions';
+        // Google AI API configuration
+        const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
         
         // Get API key from environment
-        let apiKey = this.getOpenAIKey();
+        let apiKey = this.getGoogleAIKey();
         if (!apiKey) {
-            throw new Error('No OpenAI API key configured');
+            throw new Error('No Google AI API key configured');
         }
         
         const detailCount = detail === 'high' ? 10 : detail === 'medium' ? 7 : 5;
@@ -138,39 +144,40 @@ class TimelineGenerator {
         Make sure the events are chronologically ordered and include real, factual information.`;
 
         try {
-            console.log('Making OpenAI API call for:', subject);
+            console.log('Making Google AI API call for:', subject);
             
-            const response = await fetch(apiUrl, {
+            const response = await fetch(`${apiUrl}?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
+                    contents: [
                         {
-                            role: 'system',
-                            content: systemPrompt
-                        },
-                        {
-                            role: 'user',
-                            content: userPrompt
+                            parts: [
+                                {
+                                    text: `${systemPrompt}\n\n${userPrompt}`
+                                }
+                            ]
                         }
                     ],
-                    temperature: 0.7,
-                    max_tokens: 1500
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 1500,
+                        topP: 0.8,
+                        topK: 40
+                    }
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                const content = data.choices[0].message.content;
-                console.log('OpenAI response:', content);
+                const content = data.candidates[0].content.parts[0].text;
+                console.log('Google AI response:', content);
                 return this.parseAIResponse(content);
             } else {
                 const errorData = await response.json();
-                console.error('OpenAI API error:', errorData);
+                console.error('Google AI API error:', errorData);
                 throw new Error(`API request failed: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
             }
         } catch (error) {
@@ -179,9 +186,9 @@ class TimelineGenerator {
         }
     }
 
-    getOpenAIKey() {
+    getGoogleAIKey() {
         // Try to get API key from localStorage first
-        let apiKey = localStorage.getItem('openai_api_key');
+        let apiKey = localStorage.getItem('google_ai_api_key');
         return apiKey;
     }
 
@@ -190,7 +197,7 @@ class TimelineGenerator {
         const apiStatus = document.getElementById('api-status');
         
         if (apiKeyInput) {
-            const savedKey = this.getOpenAIKey();
+            const savedKey = this.getGoogleAIKey();
             if (savedKey) {
                 apiKeyInput.value = savedKey;
                 this.updateAPIStatus('configured');
@@ -200,6 +207,9 @@ class TimelineGenerator {
                 this.showAISetupNotification();
             }
         }
+        
+        // Update debug information
+        this.updateDebugInfo();
     }
 
     showAISetupNotification() {
@@ -213,7 +223,7 @@ class TimelineGenerator {
         notification.innerHTML = `
             <div class="notification-content">
                 <h4>🤖 AI-Powered Timeline Generation</h4>
-                <p>Configure your OpenAI API key to enable AI-powered timeline generation for any subject!</p>
+                <p>Configure your Google AI API key to enable AI-powered timeline generation for any subject!</p>
                 <div class="notification-actions">
                     <button class="setup-btn" onclick="timelineGenerator.openSettingsModal()">Setup AI</button>
                     <button class="dismiss-btn" onclick="this.parentElement.parentElement.parentElement.remove()">Dismiss</button>
@@ -248,7 +258,7 @@ class TimelineGenerator {
         const apiKey = apiKeyInput.value.trim();
         
         if (apiKey) {
-            localStorage.setItem('openai_api_key', apiKey);
+            localStorage.setItem('google_ai_api_key', apiKey);
             this.updateAPIStatus('configured');
             this.closeSettingsModal();
             alert('Settings saved successfully!');
@@ -266,39 +276,93 @@ class TimelineGenerator {
             return;
         }
 
+        // Validate API key format (Google AI keys are typically longer and don't have a specific prefix)
+        if (apiKey.length < 20) {
+            alert('Invalid API key format. Google AI API keys are typically longer. Please check your key and try again.');
+            return;
+        }
+
         const testBtn = document.getElementById('test-api');
         const originalText = testBtn.textContent;
         testBtn.textContent = 'Testing...';
         testBtn.disabled = true;
 
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            console.log('Testing Google AI API with key:', apiKey.substring(0, 10) + '...');
+            
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
+                    contents: [
                         {
-                            role: 'user',
-                            content: 'Hello! This is a test message.'
+                            parts: [
+                                {
+                                    text: 'Hello! This is a test message.'
+                                }
+                            ]
                         }
                     ],
-                    max_tokens: 10
+                    generationConfig: {
+                        maxOutputTokens: 10
+                    }
                 })
             });
 
+            console.log('API Response Status:', response.status);
+            console.log('API Response Headers:', response.headers);
+
             if (response.ok) {
-                alert('API test successful! Your OpenAI API key is working.');
+                const data = await response.json();
+                console.log('API test successful:', data);
+                const successMessage = 'API test successful! Your Google AI API key is working.';
+                alert(successMessage);
                 this.updateAPIStatus('configured');
+                localStorage.setItem('last_api_test_result', successMessage);
             } else {
                 const errorData = await response.json();
-                alert(`API test failed: ${errorData.error?.message || 'Unknown error'}`);
+                console.error('API Error Response:', errorData);
+                
+                let errorMessage = 'API test failed: ';
+                
+                if (errorData.error) {
+                    switch (errorData.error.status) {
+                        case 'INVALID_ARGUMENT':
+                            errorMessage += 'Invalid request. Please check your API key format.';
+                            break;
+                        case 'UNAUTHENTICATED':
+                            errorMessage += 'Authentication failed. Please check your API key.';
+                            break;
+                        case 'RESOURCE_EXHAUSTED':
+                            errorMessage += 'Quota exceeded. Please check your Google AI account usage.';
+                            break;
+                        case 'PERMISSION_DENIED':
+                            errorMessage += 'Permission denied. Please check your API key permissions.';
+                            break;
+                        default:
+                            errorMessage += errorData.error.message || 'Unknown error occurred.';
+                    }
+                } else {
+                    errorMessage += `HTTP ${response.status}: ${response.statusText}`;
+                }
+                
+                alert(errorMessage);
+                localStorage.setItem('last_api_test_result', errorMessage);
             }
         } catch (error) {
-            alert(`API test failed: ${error.message}`);
+            console.error('Network or other error:', error);
+            
+            let errorMessage = 'API test failed: ';
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage += 'Network error. Please check your internet connection.';
+            } else {
+                errorMessage += error.message;
+            }
+            
+            alert(errorMessage);
+            localStorage.setItem('last_api_test_result', errorMessage);
         } finally {
             testBtn.textContent = originalText;
             testBtn.disabled = false;
@@ -311,6 +375,55 @@ class TimelineGenerator {
             apiStatus.textContent = status === 'configured' ? 'Configured' : 'Not configured';
             apiStatus.className = `status-indicator ${status}`;
         }
+        
+        // Update debug information
+        this.updateDebugInfo();
+    }
+
+    updateDebugInfo() {
+        const debugKey = document.getElementById('debug-key');
+        const debugFormat = document.getElementById('debug-format');
+        const debugResult = document.getElementById('debug-result');
+        
+        const apiKey = this.getGoogleAIKey();
+        
+        if (debugKey) {
+            if (apiKey) {
+                debugKey.textContent = apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 4);
+            } else {
+                debugKey.textContent = 'Not set';
+            }
+        }
+        
+        if (debugFormat) {
+            if (apiKey && apiKey.length >= 20) {
+                debugFormat.textContent = 'Valid (Google AI format)';
+                debugFormat.style.color = '#28a745';
+            } else if (apiKey) {
+                debugFormat.textContent = 'Invalid (too short)';
+                debugFormat.style.color = '#dc3545';
+            } else {
+                debugFormat.textContent = 'No key set';
+                debugFormat.style.color = '#6c757d';
+            }
+        }
+        
+        if (debugResult) {
+            const lastResult = localStorage.getItem('last_api_test_result');
+            if (lastResult) {
+                debugResult.textContent = lastResult;
+                debugResult.style.color = lastResult.includes('successful') ? '#28a745' : '#dc3545';
+            } else {
+                debugResult.textContent = 'None';
+                debugResult.style.color = '#6c757d';
+            }
+        }
+    }
+
+    clearDebugInfo() {
+        localStorage.removeItem('last_api_test_result');
+        this.updateDebugInfo();
+        alert('Debug information cleared.');
     }
 
     mockAIResponse(subject, type, period, detail) {
@@ -695,15 +808,15 @@ class TimelineGenerator {
     }
 
     async generateAISummaryContent(timeline) {
-        // Try OpenAI API for summary generation
-        let apiKey = this.getOpenAIKey();
+        // Try Google AI API for summary generation
+        let apiKey = this.getGoogleAIKey();
         if (!apiKey) {
             // Fallback to local summary generation
             return this.generateLocalSummaryContent(timeline);
         }
 
         try {
-            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+            const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
             const events = timeline.events;
             const subject = this.extractSubjectFromTimeline(timeline);
             
@@ -723,37 +836,38 @@ class TimelineGenerator {
             
             Format your response in HTML with <p>, <strong>, <ul>, <li> tags for proper structure.`;
 
-            const response = await fetch(apiUrl, {
+            const response = await fetch(`${apiUrl}?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
+                    contents: [
                         {
-                            role: 'system',
-                            content: systemPrompt
-                        },
-                        {
-                            role: 'user',
-                            content: userPrompt
+                            parts: [
+                                {
+                                    text: `${systemPrompt}\n\n${userPrompt}`
+                                }
+                            ]
                         }
                     ],
-                    temperature: 0.7,
-                    max_tokens: 1000
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 1000,
+                        topP: 0.8,
+                        topK: 40
+                    }
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                const content = data.choices[0].message.content;
-                console.log('OpenAI summary response:', content);
+                const content = data.candidates[0].content.parts[0].text;
+                console.log('Google AI summary response:', content);
                 return content;
             } else {
                 const errorData = await response.json();
-                console.error('OpenAI summary API error:', errorData);
+                console.error('Google AI summary API error:', errorData);
                 return this.generateLocalSummaryContent(timeline);
             }
         } catch (error) {

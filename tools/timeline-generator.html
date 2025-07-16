@@ -109,9 +109,21 @@
             </div>
             <div class="modal-body">
                 <div class="setting-group">
-                    <label for="api-key-input">OpenAI API Key:</label>
-                    <input type="password" id="api-key-input" placeholder="Enter your OpenAI API key">
+                    <label for="api-key-input">Google AI API Key:</label>
+                    <input type="password" id="api-key-input" placeholder="Enter your Google AI API key">
                     <p class="help-text">Your API key is stored locally and never sent to our servers.</p>
+                </div>
+                
+                <div class="api-help">
+                    <h4>How to get your Google AI API key:</h4>
+                    <ol>
+                        <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+                        <li>Sign in with your Google account</li>
+                        <li>Click "Create API Key"</li>
+                        <li>Copy the generated API key</li>
+                        <li>Paste it above and click "Test API"</li>
+                    </ol>
+                    <p><strong>Note:</strong> You'll need to enable the Gemini API in your Google Cloud Console.</p>
                 </div>
                 <div class="setting-group">
                     <label for="api-status">API Status:</label>
@@ -120,6 +132,18 @@
                 <div class="setting-actions">
                     <button id="save-settings" class="save-button">Save Settings</button>
                     <button id="test-api" class="test-button">Test API</button>
+                </div>
+                
+                <div class="debug-section">
+                    <details>
+                        <summary>Debug Information</summary>
+                        <div class="debug-content">
+                            <p><strong>Current API Key:</strong> <span id="debug-key">Not set</span></p>
+                            <p><strong>Key Format:</strong> <span id="debug-format">Invalid</span></p>
+                            <p><strong>Last Test Result:</strong> <span id="debug-result">None</span></p>
+                            <button id="clear-debug" class="debug-button">Clear Debug Info</button>
+                        </div>
+                    </details>
                 </div>
             </div>
         </div>

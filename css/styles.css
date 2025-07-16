@@ -1336,6 +1336,94 @@ body {
     margin-top: 0.5rem;
 }
 
+.api-help {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-left: 4px solid #ff6b35;
+}
+
+.api-help h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.api-help ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.api-help li {
+    margin: 0.25rem 0;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.api-help a {
+    color: #ff6b35;
+    text-decoration: none;
+}
+
+.api-help a:hover {
+    text-decoration: underline;
+}
+
+.api-help p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.debug-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+}
+
+.debug-section details {
+    font-size: 0.9rem;
+}
+
+.debug-section summary {
+    cursor: pointer;
+    color: #666;
+    font-weight: 600;
+    padding: 0.5rem 0;
+}
+
+.debug-section summary:hover {
+    color: #ff6b35;
+}
+
+.debug-content {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.debug-content p {
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+}
+
+.debug-button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.debug-button:hover {
+    background: #5a6268;
+}
+
 .status-indicator {
     display: inline-block;
     padding: 0.5rem 1rem;
